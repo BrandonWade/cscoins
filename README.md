@@ -1,7 +1,17 @@
-# Running the miner on Windows locally
-
+# Running the default miner locally
 - Use Python 3.5.3
-- If you encounter an error when attempting to install the dependency pycrypto, find your installation of Python 3.5 and follow the instructions here https://github.com/andrewcooke/simple-crypt/issues/17
+- Make sure mysql is running
+- Create a schema called cacoins (use MySQL Workbench on Windows or SQLPro on Mac)
+- Open cscoins/src/caserver/ca_config.txt, set db_user and db_password to your MySQL password
+- Navigate to cscoins/src/caserver and run 'python main.py'
+- Navigate to cscoins/src/minerclient and run 'python main.py'
+- Note: If you encounter the 'winrandom' error when attempting to install the dependency pycrypto, find your installation of Python 3.5 and follow the instructions here https://github.com/andrewcooke/simple-crypt/issues/17
+
+## Switching the default miner to use their servers
+- Open cscoins/src/minerclient/main.py, uncomment line 25 and comment out line 26
+- Open cscoins/src/minerclient/MinerClient.py, uncomment line 11 and comment out line 12
+- Open cscoins/src/walletmanager/coins-client.js, uncomment line 24 and comment out line 25
+- You may optionally need to open Open cscoins/src/caserver/ca_config.txt and set ssl_on to True
 
 ---------
 

@@ -3,6 +3,7 @@ import hashlib
 import random
 import threading
 import Grid
+import time
 
 
 class ChallengeSolver(threading.Thread):
@@ -49,10 +50,8 @@ class SortedListSolver(ChallengeSolver):
                 elements.append(self.mt.extract_number())
 
             elements.sort()
-
-            solution_string = ""
-            for i in elements:
-                solution_string += "{0}".format(i)
+            
+            solution_string = "".join(str(i) for i in elements)
 
             sha256 = hashlib.sha256()
             sha256.update(solution_string.encode('ascii'))
@@ -84,9 +83,7 @@ class ReverseSortedListSolver(ChallengeSolver):
 
             elements.sort(reverse=True)
 
-            solution_string = ""
-            for i in elements:
-                solution_string += "{0}".format(i)
+            solution_string = "".join(str(i) for i in elements)
 
             sha256 = hashlib.sha256()
             sha256.update(solution_string.encode('ascii'))

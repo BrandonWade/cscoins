@@ -5,6 +5,8 @@ import threading
 import Grid
 import time
 
+current_milli_time = lambda: int(time.time() * 1000)
+
 
 class ChallengeSolver(threading.Thread):
     def __init__(self, challenge_name, challenge):
@@ -141,8 +143,7 @@ class ShortestPathSolver(ChallengeSolver):
                 came_from, cost_so_far = Grid.dijkstra_search(grid, start_pos, end_pos)
                 path = Grid.reconstruct_path(came_from, start_pos, end_pos)
 
-                for coord in path:
-                    solution_string += "{0}{1}".format(coord[0], coord[1])
+                solution_string = "".join("{0}{1}".format(coord[0], coord[1]) for coord in path)
 
                 sha256 = hashlib.sha256()
                 sha256.update(solution_string.encode("ascii"))

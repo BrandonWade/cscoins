@@ -1,0 +1,14 @@
+reverse and sorted list challenges are identical on server side other than reverse=True as sort param
+	straight forward implementation
+	can possibly optimize sorting strategy based on being 64 bit unsigned int
+
+shortest path is implementation of dijsktra
+	is recursive, can maybe find an iterative approach?
+
+prng is seeded with last soln from server
+	last soln is always given when retrieving challenge from server
+	used to seed the data for the challenge
+		lol lookup table of precomputed seeded hashs
+			probably different init seed tho
+
+

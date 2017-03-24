@@ -8,7 +8,7 @@ import asyncio
 
 class MinerClient(BaseClient):
     def __init__(self, key_dirs="", hostname="localhost", wallet_name="SimpleMiner"):
-        BaseClient.__init__(self, hostname)
+        BaseClient.__init__(self, hostname, "8989", False)
         self.keys_dir = key_dirs
         self.wallet_name = wallet_name
         self.time_limit = 0

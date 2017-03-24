@@ -2,9 +2,9 @@
 listen_address=localhost
 port=8989
 ssl_cert=../server.pem
-ssl_on=True
-db_user=cacoins
-db_password=
+ssl_on=False
+db_user=root
+db_password=root
 db_name=cacoins
 
 coins_per_challenge=200

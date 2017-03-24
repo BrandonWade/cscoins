@@ -11,18 +11,18 @@ function signMessage() {
 function generateId() {
 	var pub_key = $('#pub_key').val();
 	var pubHex = KEYUTIL.getHexFromPEM(pub_key);
-	
+
 	var hasher = new jsSHA("SHA-256", "HEX");
 	hasher.update(pubHex);
-	
+
 	$('#wallet_id').text(hasher.getHash("HEX"));
 }
 
 
 
 var coinsClient = {
-	server_uri: "wss://cscoins.2017.csgames.org:8989/client",
-	//server_uri: "ws://localhost:8989/client",
+	//server_uri: "wss://cscoins.2017.csgames.org:8989/client",
+	server_uri: "ws://localhost:8989/client",
 	socket: null,
 	wallet_id: null,
 	public_key: null,
@@ -33,16 +33,16 @@ var coinsClient = {
 	current_job: null,
 	job_loop: null,
 	support_storage: false,
-	
+
 	new_command: function(command, args) {
 		return JSON.stringify({ command: command, args: args});
 	},
-	
+
 	connect: function(connect_callback) {
 
 		if(!coinsClient.socket) {
 			coinsClient.loadKeysFromStorage();
-			
+
 			coinsClient.socket = new WebSocket(coinsClient.server_uri);
 			coinsClient.socket.onmessage = coinsClient.handle_message;
 			coinsClient.socket.onopen = function() {
@@ -59,16 +59,16 @@ var coinsClient = {
 			}
 		}
 	},
-	
+
 	disconnect: function() {
 		coinsClient.socket.close();
 	},
-	
+
 	start_job_loop: function() {
         coinsClient.job_loop = setTimeout(coinsClient.execute_job, 100);
         setTimeout(coinsClient.fetch_new_transactions, 5000);
     },
-	
+
 	execute_job: function() {
         if(coinsClient.current_job == null || coinsClient.current_job.terminated)
         {
@@ -82,14 +82,14 @@ var coinsClient = {
 
         coinsClient.job_loop = setTimeout(coinsClient.execute_job, 100)
     },
-	
+
 	handle_message: function(evt) {
         var jsonData = JSON.parse(evt.data)
         if(coinsClient.current_job) {
             coinsClient.current_job.onmessage(coinsClient.current_job, jsonData);
         }
     },
-	
+
 	push_job: function(run_callback, onmessage_callback) {
         var job = {
             run: function(job, websocket) {
@@ -107,7 +107,7 @@ var coinsClient = {
 
         coinsClient.jobs_queue.push(job);
     },
-	
+
 	fetch_new_transactions: function() {
 		coinsClient.push_job(
 			function(job, websocket) {
@@ -124,7 +124,7 @@ var coinsClient = {
 					console.log(data.error);
 					return;
 				}
-				
+
 				for(var i=0; i<data.transactions.length; i++)
 				{
 				    addTransactionToUI(data.transactions[i]);
@@ -145,23 +145,23 @@ var coinsClient = {
 			}
 		);
 	},
-	
+
 	signHex: function(hexData) {
 			var sig = new KJUR.crypto.Signature({"alg": "SHA256withRSA"});
 			sig.init(KEYUTIL.getKey(coinsClient.private_key));
 			sig.updateHex(hexData);
 			return sig.sign();
 	},
-	
+
 	signString: function(message) {
 		var sig = new KJUR.crypto.Signature({"alg": "SHA256withRSA"});
 		sig.init(KEYUTIL.getKey(coinsClient.private_key));
 		sig.updateString(message);
 		return sig.sign();
 	},
-	
+
 	register_wallet: function(walletName) {
-		
+
 		if(coinsClient.connected && coinsClient.private_key && coinsClient.public_key)
 		{
 			var pubHex = KEYUTIL.getHexFromPEM(coinsClient.public_key);
@@ -171,7 +171,7 @@ var coinsClient = {
 				key: coinsClient.public_key,
 				signature: signature
 			});
-			
+
 			coinsClient.push_job(
 				function(job, websocket) {
 					websocket.send(command);
@@ -189,22 +189,22 @@ var coinsClient = {
 				}
 			);
 		}
-		
+
 	},
-	
+
 	get_formatted_amount: function(amount) {
 		var floatAmount = parseFloat(amount);
 		floatAmount = Math.round(floatAmount*100000)/100000;
 		return floatAmount.toFixed(5);
 	},
-	
+
 	create_transaction: function(recipient, amount) {
         if(coinsClient.connected)
         {
 			var formattedAmount = coinsClient.get_formatted_amount(amount);
 			var signatureMessage = coinsClient.wallet_id+","+recipient+","+formattedAmount;
 			var signature = coinsClient.signString(signatureMessage);
-			
+
             coinsClient.push_job(
                 function (job, websocket) {
                     websocket.send(JSON.stringify({command: 'create_transaction', args: {
@@ -227,23 +227,23 @@ var coinsClient = {
             );
         }
 	},
-	
+
 	generateWalletId: function() {
 		var pubHex = KEYUTIL.getHexFromPEM(coinsClient.public_key);
 		var hasher = new jsSHA("SHA-256", "HEX");
 		hasher.update(pubHex);
 		coinsClient.wallet_id = hasher.getHash("HEX");
 	},
-	
+
 	loadKeysFromStorage: function () {
 		if(!coinsClient.support_storage) {
 			console.log("HTML5 Storage not supported !");
 			return;
 		}
-		
+
 		var privKey = localStorage.getItem('wallet-private-key');
 		var pubKey = localStorage.getItem('wallet-public-key');
-		
+
 		if(privKey && pubKey) {
 			coinsClient.public_key = pubKey;
 			coinsClient.private_key = privKey;
@@ -255,14 +255,14 @@ var coinsClient = {
 			hideKeys();
 		}
 	},
-	
+
 	saveKeysToStorage: function () {
 		if(!coinsClient.support_storage)
 		{
 			console.log("HTML5 Storage not supported !");
 			return;
 		}
-		
+
 		if(coinsClient.public_key && coinsClient.private_key) {
 			localStorage.setItem('wallet-private-key', coinsClient.private_key);
 			localStorage.setItem('wallet-public-key', coinsClient.public_key);
@@ -271,12 +271,12 @@ var coinsClient = {
 };
 
 function updateConnectionStatus(connectionStatus) {
-	
+
 	//hidding all span
 	$('#connection-status span').each(function(index, value){
 		$(value).hide();
 	});
-	
+
 	$('#connection-status-'+connectionStatus).fadeIn();
 }
 
@@ -322,8 +322,8 @@ function init_page() {
             $(this).hide();
         }
     });
-	
-	
+
+
 	coinsClient.support_storage = support_storage();
 	coinsClient.connect(connect_callback);
 }
@@ -338,11 +338,11 @@ function support_storage() {
 
 function connect_callback(connected) {
 	var connectionStatus = 'connected';
-	
+
 	if(!connected) {
 		connectionStatus = 'disconnected';
 	}
-	
+
 	updateConnectionStatus(connectionStatus);
 }
 
@@ -363,7 +363,7 @@ function calculateBalance() {
 				balance += parseFloat(txn.amount);
 			}
 		}
-		
+
 		$('#wallet-balance').text(balance);
 	}
 }
@@ -371,29 +371,29 @@ function calculateBalance() {
 function addTransactionToUI(txn) {
     var transactionsSection = $('#transactions-container');
 	var template = $('#template #txn');
-	
+
 	var txnElement = template.clone();
-	
+
 	txnElement.find('#txn-id').text(txn.id);
-	
+
 	txnElement.find('#source-address').text(txn.source.substr(0, 32));
 	txnElement.find('#source-address').attr('title', txn.source);
-	
+
 	if(txn.source === coinsClient.wallet_id)
 	{
 		txnElement.find('#source-address').attr('class', 'my-wallet-id');
 	}
-	
+
 	txnElement.find('#recipient-address').text(txn.recipient.substr(0, 32));
 	txnElement.find('#recipient-address').attr('title', txn.recipient);
-	
+
 	if(txn.recipient === coinsClient.wallet_id)
 	{
 		txnElement.find('#recipient-address').attr('class', 'my-wallet-id');
 	}
-	
+
 	txnElement.find('#txn-amount').text(txn.amount);
-	
+
 	txnElement.prop('id', 'txn-'+txn.id);
 	transactionsSection.append(txnElement);
 }
@@ -417,7 +417,7 @@ function showHideTransactions() {
 function toggleSendCoins() {
     var sendCoinsSection = $('#send-coins-section');
 	var sendCoinsForm = $('#send-coins-form');
-	
+
 	resetSendCoinStatus();
     sendCoinsSection.show();
     sendCoinsSection.data('state','visible');
@@ -437,7 +437,7 @@ function resetSendCoinStatus()
 
 function transactionSuccess(txnId) {
 	$('#send-coins-toggle').fadeIn();
-	
+
 	resetSendCoinStatus();
 	var successLabel = $('#send-coin-success');
 	successLabel.text(successLabel.text().split(':')[0] + ' : id = ' + txnId);
@@ -446,9 +446,9 @@ function transactionSuccess(txnId) {
 
 function transactionFailed(errorMessage) {
 	$('#send-coins-toggle').fadeIn();
-	
+
 	resetSendCoinStatus();
-	
+
 	var errorLabel = $('#send-coin-error');
 	errorLabel.text(errorLabel.text().split(':')[0] + ' : ' + errorMessage);
 	errorLabel.fadeIn();
@@ -457,13 +457,13 @@ function transactionFailed(errorMessage) {
 function send_coins() {
 	var recipient = $('#transaction-recipient').val();
 	var amount = $('#transaction-amount').val();
-	
+
 	var sendCoinsForm = $('#send-coins-form');
 	sendCoinsForm.fadeOut();
 	sendCoinsForm.data('state', 'hidden');
-	
+
 	$('#send-coin-pending').fadeIn();
-	
+
 	coinsClient.create_transaction(recipient, amount);
 }
 

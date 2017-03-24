@@ -1,3 +1,10 @@
+# Running the miner on Windows locally
+
+- Use Python 3.5.3
+- If you encounter an error when attempting to install the dependency pycrypto, find your installation of Python 3.5 and follow the instructions here https://github.com/andrewcooke/simple-crypt/issues/17
+
+---------
+
 # Important!
 
 This document might still be updated until the beginning of the CS Games 2017. We recommend that interested parties watch the [https://github.com/csgames/cscoins](https://github.com/csgames/cscoins) repository to be notified as soon as a new change is introduced. For any issue, bug or needed clarification, please open an issue in the GitHub project.
@@ -276,7 +283,7 @@ All responses sent by the Central Authority Server contains a `type` attribute. 
 
 #### Get Current Challenge
 
-Fetch the current problem set from the Central Authority. 
+Fetch the current problem set from the Central Authority.
 
 After the first call of this command, you will automatically receive the new challenge when it's available, until the connection is closed.
 
